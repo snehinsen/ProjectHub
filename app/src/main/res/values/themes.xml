@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.ProjectHub" parent="android:ThemeOverlay.Material.Dark" />
+
+    <style name="Theme.ProjectHub.NoActionBar">
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.ProjectHub.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark" />
+
+    <style name="Theme.ProjectHub.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+</resources>
