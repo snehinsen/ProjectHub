@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -40,18 +41,20 @@ fun NewProjectBar(navController: NavController) {
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth()
-            .height(56.dp)
             .background(Color.DarkGray)
             .padding(horizontal = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        TextField(
+        OutlinedTextField(
             value = title,
             onValueChange = { title = it },
-            label = { Text("Project Name") },
+            label = { Text("Project Name",
+                style = TextStyle(color = Color.White)) },
             singleLine = true,
-            modifier = Modifier.weight(1f),
-            textStyle = TextStyle(color = Color.Black)
+            modifier = Modifier
+                .height(63.dp)
+                .padding(0.dp),
+            textStyle = TextStyle(color = Color.White)
         )
         IconButton(onClick = {
             if (title.isNotBlank()) {
@@ -76,7 +79,7 @@ fun NewProjectBar(navController: NavController) {
                 imageVector = Icons.Filled.Add,
                 contentDescription = "Create Project" ,
                 tint = Color.White,
-                modifier = Modifier.size(60.dp))
+                modifier = Modifier.size(100.dp))
         }
     }
 }

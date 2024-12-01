@@ -21,6 +21,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import ca.tlcp.projecthub.components.Screen
 import ca.tlcp.projecthub.components.ViewComponents.Note
 import ca.tlcp.projecthub.components.ViewComponents.NoteEditor
 
@@ -48,19 +49,15 @@ fun NotesView(navController: NavController) {
                     .fillMaxWidth()
             ) {
                 items(notesList) { note ->
-                    Note(title = note, onDelete = { notesList.remove(note)}, onSelect = {
-                        currentNoteName = note
-                        isEditorOpen = true
+                    Note(title = note,
+                        onDelete = { notesList.remove(note)}, onSelect = {
+                        navController.navigate(
+                            Screen.noteDatialsScreen.route + "/$note")
                     })
                 }
 
             }
-            NoteEditor(
-                isEditorOpen, title = currentNoteName,
-                onDismiss = {
-                    isEditorOpen = false
-                }
-            )
+
         } else {
             Column(Modifier.fillMaxHeight(0.9f)) {
                 Text(text = "You don't have any Notes yet. Create one to get started.",

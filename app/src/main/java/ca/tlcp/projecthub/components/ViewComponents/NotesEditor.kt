@@ -30,6 +30,7 @@ import androidx.compose.ui.window.Popup
 fun NoteEditor(
     isOpen: Boolean,
     onDismiss: () -> Unit,
+    onChange: (String) -> Unit,
     title: String
 ) {
     if (isOpen) {
@@ -48,7 +49,6 @@ fun NoteEditor(
                         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
                     ) {
-                        // Title in the center
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -62,7 +62,6 @@ fun NoteEditor(
                             )
                         }
 
-                        // Done button on the right
                         TextButton(
                             onClick = { onDismiss() },
                             modifier = Modifier.align(androidx.compose.ui.Alignment.CenterVertically)
@@ -71,7 +70,7 @@ fun NoteEditor(
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    MarkdownEditor("")
+                    MarkdownEditor("") {onChange}
                 }
             }
         }

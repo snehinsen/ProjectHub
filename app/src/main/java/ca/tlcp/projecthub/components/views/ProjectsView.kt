@@ -82,6 +82,7 @@ fun ProjectsViewPage(navController: NavController) {
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
+                    .fillMaxHeight(0.85f)
             ) {
                 items(projects) { project ->
                     Project(
@@ -99,7 +100,7 @@ fun ProjectsViewPage(navController: NavController) {
                 }
             }
         } else {
-            Column(Modifier.fillMaxHeight(0.9f)) {
+            Column(Modifier.fillMaxHeight(0.85f)) {
                 Text(
                     text = "You don't have any projects yet. Create one to get started.",
                     style = TextStyle(color = Color.Gray)
