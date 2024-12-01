@@ -3,36 +3,40 @@ package ca.tlcp.projecthub.components.ViewComponents
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.jeziellago.compose.markdowntext.MarkdownText
-
 
 @Composable
 fun MarkdownEditor(markdown: String, onChange: (String) -> Unit) {
-    var content by remember {
-        mutableStateOf(markdown)
-    }
-    Row(Modifier.fillMaxSize()) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .background(Color.Black)
+            .padding(8.dp) // Optional padding for better spacing
+    ) {
         OutlinedTextField(
-            value = content,
-            onValueChange = {onChange},
-            Modifier.fillMaxHeight()
-                .background(Color.Black),
-            textStyle = TextStyle(Color.White))
-
+            value = markdown,
+            onValueChange = { updatedText ->
+                onChange(updatedText) // Notify parent of changes
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            textStyle = TextStyle(
+                color = Color.White,
+                fontSize = 14.sp // Adjust font size for readability
+            ),
+            singleLine = false,
+            maxLines = Int.MAX_VALUE // No limit on lines
+        )
     }
 }
