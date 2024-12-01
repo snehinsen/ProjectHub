@@ -1,22 +1,14 @@
 package ca.tlcp.projecthub.components.views
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -31,49 +23,68 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 @Composable
 fun NoteDetailsView(noteName: String?, navController: NavController) {
     var isEditorOpen by remember { mutableStateOf(false) }
-    var noteBody by remember {
-        mutableStateOf("")
-    }
-    Column(modifier = Modifier
-        .background(Color.Black)
-        .fillMaxSize()
-        .padding(top = 50.dp)) {
-        Row {
-            Row {
-                TextButton(onClick = {
-                    navController.navigate(Screen.projectsScreen.route)
-                }, modifier = Modifier.height(50.dp)) {
-                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
-                    Text("Back")
-                }
+    var noteBody by remember { mutableStateOf("\n" +
+            "### **Important Links**\n" +
+            "- [Markdown Syntax Guide](https://www.markdownguide.org/basic-syntax/)  \n" +
+            "- [ProjectHub GitHub Repository](https://github.com/snehinsen/ProjectHub)  \n" +
+            "- [API Documentation](https://api.projecthub.com/docs)  \n") }
+
+    Column(
+        modifier = Modifier
+            .background(Color.Black)
+            .fillMaxSize()
+            .padding(top = 30.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(
+                onClick = { navController.navigate(Screen.projectsScreen.route) },
+                modifier = Modifier.size(100.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Back"
+                )
+                Text("Back")
             }
-            Text(noteName.toString(),
-                style = TextStyle(
-                    Color.White,
-                    fontSize = 30.sp
-                ))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = noteName ?: "",
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 20.sp
+                    ),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
 
         NoteEditor(
-            isEditorOpen, title = noteName.toString(),
-            onDismiss = {
-                isEditorOpen = false
-            }, onChange = { body: String ->
-                noteBody = body
-            }
+            isEditorOpen,
+            title = noteName ?: "Untitled",
+            onDismiss = { isEditorOpen = false },
+            onChange = { body: String -> noteBody = body }
         )
 
         MarkdownText(
             modifier = Modifier
-                .padding(8.dp)
-                .fillMaxHeight(),
+                .padding(16.dp)
+                .fillMaxSize(),
             markdown = noteBody,
-            maxLines = 3,
             style = TextStyle(
                 color = Color.White,
-                fontSize = 12.sp,
-                lineHeight = 10.sp,
-                textAlign = TextAlign.Justify,
-            ))
+                lineHeight = 18.sp
+            )
+        )
     }
 }
