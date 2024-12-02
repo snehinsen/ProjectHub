@@ -23,7 +23,6 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 
 @Composable
 fun NoteDetailsView(noteName: String?, navController: NavController) {
-    var isEditorOpen by remember { mutableStateOf(false) }
     var noteBody by remember {
         mutableStateOf("")
     }
@@ -79,7 +78,7 @@ fun NoteDetailsView(noteName: String?, navController: NavController) {
             horizontalArrangement = Arrangement.End
         ) {
             TextButton(
-                onClick = { isEditorOpen = true },
+                onClick = {navController.navigate(Screen.projectsScreen.route)},
                 modifier = Modifier.wrapContentSize()
             ) {
                 Icon(
@@ -92,14 +91,6 @@ fun NoteDetailsView(noteName: String?, navController: NavController) {
                 Text("Edit", color = Color.White, fontSize = 14.sp)
             }
         }
-
-        NoteEditor(
-            isEditorOpen,
-            title = noteName ?: "Untitled",
-            onDismiss = { isEditorOpen = false },
-            body = noteBody,
-            update = { body: String -> noteBody = body }
-        )
 
         MarkdownText(
             modifier = Modifier

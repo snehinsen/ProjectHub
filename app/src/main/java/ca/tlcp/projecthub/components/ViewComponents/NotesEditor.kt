@@ -13,61 +13,58 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
+import androidx.navigation.NavController
+import ca.tlcp.projecthub.components.Screen
 
 @Composable
 fun NoteEditor(
-    isOpen: Boolean,
-    onDismiss: () -> Unit,
-    update: (String) -> Unit,
     title: String,
-    body: String
+    body: String,
+    navController: NavController
 ) {
-    if (isOpen) {
-        Popup(onDismissRequest = { onDismiss() }) {
-            Box(
+    Column(modifier = Modifier) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.DarkGray, RoundedCornerShape(16.dp))
+                .padding(16.dp)
+        ) {
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.DarkGray, RoundedCornerShape(16.dp))
-                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .padding(top = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
-                    // Title Row
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .wrapContentHeight(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = title,
-                                style = TextStyle(color = Color.White, fontSize = 20.sp),
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-
-                        TextButton(
-                            onClick = { onDismiss() },
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        ) {
-                            Text("Done", style = TextStyle(fontSize = 20.sp, color = Color.White))
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    MarkdownEditor(
-                        markdown = body,
-                        onChange = { updatedText -> update(updatedText) }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .wrapContentHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = title,
+                        style = TextStyle(color = Color.White, fontSize = 20.sp),
+                        modifier = Modifier.align(Alignment.Center)
                     )
                 }
+
+                TextButton(
+                    onClick = {
+                        navController.navigate(Screen.projectsScreen.route)
+                    },
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                ) {
+                    Text("Done", style = TextStyle(fontSize = 20.sp, color = Color.White))
+                }
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            MarkdownEditor(
+                markdown = body,
+                onChange = { updatedText -> TODO() }
+            )
         }
     }
 }

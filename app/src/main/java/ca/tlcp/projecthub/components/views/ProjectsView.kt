@@ -1,5 +1,6 @@
 package ca.tlcp.projecthub.components.views
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -94,7 +95,8 @@ fun ProjectsViewPage(navController: NavController) {
                             projects.addAll(getProjects())
                         },
                         onSelect = {
-                            navController.navigate(Screen.projectDetailsScreen.route)
+                            Log.i(Screen.projectsScreen.route + "/$project", "")
+                            navController.navigate(Screen.projectDetailsScreen.route + "$project")
                         }
                     )
                 }

@@ -33,6 +33,7 @@ fun ProjectDetailsView(navController: NavController, project: String?) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
                 Text("Back")
             }
+
         }
         SearchBar() { searchQuary ->
 
@@ -57,7 +58,7 @@ fun ProjectDetailsView(navController: NavController, project: String?) {
 
         when (selectedTabIndex) {
             0 -> {
-                NotesView(navController)
+                NotesView(project.toString(), navController)
             }
             1 -> {
                 TodoView()

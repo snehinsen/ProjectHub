@@ -29,10 +29,11 @@ import androidx.navigation.NavController
 import ca.tlcp.projecthub.components.Screen
 import ca.tlcp.projecthub.components.createProject
 import androidx.navigation.compose.composable
+import ca.tlcp.projecthub.components.createNote
 
 
 @Composable
-fun NewProjectBar(navController: NavController) {
+fun NewNoteBar(projectName: String, navController: NavController) {
     var title by remember { mutableStateOf("") }
     var isAlertActive by remember {
         mutableStateOf(false)
@@ -48,7 +49,7 @@ fun NewProjectBar(navController: NavController) {
         OutlinedTextField(
             value = title,
             onValueChange = { title = it },
-            label = { Text("Project Name",
+            label = { Text("Note Name",
                 style = TextStyle(color = Color.White)) },
             singleLine = true,
             modifier = Modifier
@@ -71,7 +72,8 @@ fun NewProjectBar(navController: NavController) {
                         )
                     }
                 }
-                navController.navigate(Screen.projectDetailsScreen.route + "$title")
+                createNote(projectName, title)
+                navController.navigate(Screen.projectDetailsScreen.route + "/$projectName")
                 title = ""
             }
         }) {

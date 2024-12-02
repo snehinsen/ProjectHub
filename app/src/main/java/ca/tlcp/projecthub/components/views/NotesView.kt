@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,20 +23,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ca.tlcp.projecthub.components.Screen
+import ca.tlcp.projecthub.components.ViewComponents.NewNoteBar
 import ca.tlcp.projecthub.components.ViewComponents.Note
 import ca.tlcp.projecthub.components.ViewComponents.NoteEditor
+import ca.tlcp.projecthub.components.deleteNote
+import ca.tlcp.projecthub.components.loadProjectNotesList
 
 @Composable
-fun NotesView(navController: NavController) {
-    val notesList = remember { mutableStateListOf<String>("Untitled Note") }
-    var currentNoteName by remember { mutableStateOf("")}
-    var isEditorOpen by remember { mutableStateOf(false) }
+fun NotesView(projectName: String, navController: NavController) {
+    val notesList = remember {
+        mutableStateListOf<String>()
+    }
+
+    LaunchedEffect(projectName) {
+        notesList.clear()
+        notesList.addAll(loadProjectNotesList(projectName))
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .padding(top=30.dp ,start = 16.dp, end = 16.dp)
+            .padding(top = 30.dp, start = 16.dp, end = 16.dp)
     ) {
         Text(
             text = "Notes",
@@ -46,24 +55,32 @@ fun NotesView(navController: NavController) {
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxWidth()
+                    .fillMaxWidth(0.8f)
             ) {
                 items(notesList) { note ->
-                    Note(title = note,
-                        onDelete = { notesList.remove(note)}, onSelect = {
-                        navController.navigate(
-                            Screen.noteDatialsScreen.route + "/$note")
-                    })
+                    Note(
+                        title = note,
+                        onDelete = {
+                            deleteNote(projectName, "${note}.md")
+                            notesList.clear()
+                            notesList.addAll(loadProjectNotesList(projectName))
+                        },
+                        onSelect = {
+                            navController.navigate(
+                                Screen.noteDatialsScreen.route + "/$note"
+                            )
+                        }
+                    )
                 }
-
             }
-
         } else {
-            Column(Modifier.fillMaxHeight(0.9f)) {
-                Text(text = "You don't have any Notes yet. Create one to get started.",
+            Column(Modifier.fillMaxHeight(0.8f)) {
+                Text(
+                    text = "You don't have any Notes yet. Create one to get started.",
                     style = TextStyle(color = Color.Gray)
                 )
             }
         }
+        NewNoteBar(projectName, navController)
     }
 }

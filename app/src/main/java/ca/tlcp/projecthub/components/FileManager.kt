@@ -37,18 +37,30 @@ fun createProject(projectName: String): Boolean {
         return false
     }
 
+    // Define the path to the project folder
     val projectDir = File(root, "projects${File.separator}$projectName")
-    return if (projectDir.exists()) {
+
+    // Check if the project already exists
+    if (projectDir.exists()) {
         Log.e("CreateProject", "Project '$projectName' already exists.")
-        false
-    } else {
-        if (projectDir.mkdirs()) {
+        return false
+    }
+
+    return try {
+        // Create the project directory and its subdirectories
+        val notesDir = File(projectDir, "notes")
+        val todosDir = File(projectDir, "TODOs")
+
+        if (projectDir.mkdirs() && notesDir.mkdirs() && todosDir.mkdirs()) {
             Log.i("CreateProject", "Project '$projectName' created successfully.")
             true
         } else {
-            Log.e("CreateProject", "Failed to create project '$projectName'.")
+            Log.e("CreateProject", "Failed to create one or more directories for project '$projectName'.")
             false
         }
+    } catch (e: Exception) {
+        Log.e("CreateProject", "Error creating project '$projectName': ${e.message}")
+        false
     }
 }
 
@@ -71,20 +83,92 @@ fun getProjects(): List<String> {
         ?: emptyList()
 }
 
-fun loadProjectData(projectName: String): File? {
+fun loadProjectNote(projectName: String, noteName: String): File? {
     if (root == null) {
         Log.e("LoadProjectData", "Context is null. Cannot load project data.")
         return null
     }
 
-    val projectDir = File(root, "projects${File.separator}$projectName")
-    return if (projectDir.exists()) {
-        projectDir
+    val note = File(root, "projects${File.separator}$projectName/$noteName.md")
+    return if (note.exists()) {
+        return note
     } else {
-        Log.e("LoadProjectData", "Project '$projectName' does not exist.")
-        null
+        Log.e("LoadProjectNote", "Project '$projectName' does not exist.")
+        return null
     }
 }
+
+fun loadProjectNotesList(projectName: String): List<String> {
+    if (root == null) {
+        Log.e("LoadProjectNotesList", "Context is null. Cannot load project notes.")
+        return emptyList()
+    }
+
+    val noteFolder = File(root, "projects${File.separator}$projectName/notes/")
+    if (!noteFolder.exists() || !noteFolder.isDirectory) {
+        Log.e("LoadProjectNotesList", "Project '$projectName' does not exist or is not a directory.")
+        return emptyList()
+    }
+
+    return noteFolder.listFiles()
+        ?.filter { it.isFile && it.name.endsWith(".md") }
+        ?.map { it.nameWithoutExtension }
+        ?: emptyList()
+}
+
+fun createNote(projectName: String, noteName: String): Boolean {
+    if (root == null) {
+        Log.e("CreateNote", "Context is null. Cannot create note.")
+        return false
+    }
+
+    val projectDir = File(root, "projects${File.separator}$projectName/notes/${noteName}.md")
+    if (!projectDir.exists() || !projectDir.isDirectory) {
+        Log.e("CreateNote", "Project '$projectName' does not exist or is not a directory.")
+        return false
+    }
+
+    val noteFile = File(projectDir, "$noteName.md")
+    return if (noteFile.exists()) {
+        Log.w("CreateNote", "Note '$noteName' already exists in project '$projectName'.")
+        false
+    } else {
+        try {
+            if (noteFile.createNewFile()) {
+                Log.i("CreateNote", "Note '$noteName' created successfully in project '$projectName'.")
+                true
+            } else {
+                Log.e("CreateNote", "Failed to create note '$noteName' in project '$projectName'.")
+                false
+            }
+        } catch (e: Exception) {
+            Log.e("CreateNote", "Error creating note '$noteName': ${e.message}")
+            false
+        }
+    }
+}
+
+fun deleteNote(projectName: String, noteName: String): Boolean {
+    if (root == null) {
+        Log.e("DeleteNote", "Context is null. Cannot delete note.")
+        return false
+    }
+
+    val noteFile = File(root, "projects${File.separator}$projectName/notes/${noteName}.md")
+    return if (noteFile.exists() && noteFile.isFile) {
+        if (noteFile.delete()) {
+            Log.i("DeleteNote", "Note '$noteName' deleted successfully from project '$projectName'.")
+            true
+        } else {
+            Log.e("DeleteNote", "Failed to delete note '$noteName' from project '$projectName'.")
+            false
+        }
+    } else {
+        Log.w("DeleteNote", "Note '$noteName' does not exist in project '$projectName'.")
+        false
+    }
+}
+
 
 fun deleteProject(projectName: String): Boolean {
     val rootDir = root
@@ -107,7 +191,6 @@ fun deleteProject(projectName: String): Boolean {
         false
     }
 }
-
 
 fun deleteAllProjects() {
     val rootDir = root
