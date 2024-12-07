@@ -50,7 +50,6 @@ android {
 }
 
 dependencies {
-    val nav_version = "2.8.4"
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -70,6 +69,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.androidx.navigation.compose)
-    implementation("com.github.jeziellago:compose-markdown:0.5.4")
-
+    implementation("com.colintheshots:twain:0.3.2")
 }
+

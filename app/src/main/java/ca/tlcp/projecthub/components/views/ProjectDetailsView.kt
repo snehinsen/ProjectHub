@@ -24,7 +24,7 @@ fun ProjectDetailsView(navController: NavController, project: String?) {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .padding(top = 30.dp, start = 10.dp, end = 10.dp)
+            .padding(top = 30.dp, start = 5.dp, end = 5.dp)
     ) {
         Row {
             TextButton(onClick = {
@@ -35,9 +35,9 @@ fun ProjectDetailsView(navController: NavController, project: String?) {
             }
 
         }
-        SearchBar() { searchQuary ->
-
-        }
+//        SearchBar() { searchQuery ->
+//
+//        }
         TabRow(
             selectedTabIndex = selectedTabIndex,
             modifier = Modifier
@@ -61,7 +61,7 @@ fun ProjectDetailsView(navController: NavController, project: String?) {
                 NotesView(project.toString(), navController)
             }
             1 -> {
-                TodoView()
+                TODOsView(project.toString(), navController)
             }
         }
     }

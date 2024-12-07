@@ -1,9 +1,9 @@
 package ca.tlcp.projecthub.components.views
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -19,15 +19,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ca.tlcp.projecthub.components.Screen
 import ca.tlcp.projecthub.components.loadNote
-import com.colintheshots.twain.MarkdownText
+import ca.tlcp.projecthub.components.saveNote
+import com.colintheshots.twain.MarkdownEditor
 
 @Composable
-fun NoteDetailsView(
+fun EditNoteView(
     projectName: String,
     noteName: String,
     navController: NavController
 ) {
-    val noteBody = loadNote(projectName,noteName).toString()
+    var noteBody by remember { mutableStateOf(loadNote(projectName,noteName)) }
 
     Column(
         modifier = Modifier
@@ -43,7 +44,10 @@ fun NoteDetailsView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(
-                onClick = { navController.navigate(Screen.projectDetailsScreen.route + projectName) },
+                onClick = {
+                    saveNote(projectName, noteName, noteBody.toString())
+                    navController.navigate(Screen.noteDatialsScreen.route + "/$projectName/$noteName")
+                },
                 modifier = Modifier.wrapContentSize()
             ) {
                 Icon(
@@ -68,42 +72,24 @@ fun NoteDetailsView(
                 modifier = Modifier.weight(2f)
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(2f))
 
-            TextButton(
-                onClick = {
-                    navController.navigate(Screen.noteEditorScreen.route + "/$projectName/$noteName")
-                },
-                modifier = Modifier.wrapContentSize()
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Edit,
-                    contentDescription = "Edit Note",
-                    tint = Color.White,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Edit", color = Color.White, fontSize = 14.sp)
-            }
         }
 
-        Row(
+        Spacer(modifier = Modifier.height(8.dp))
+
+        MarkdownEditor(
+            value = noteBody ?: "",
+            onValueChange = { newText ->
+                noteBody = newText
+                if (saveNote(projectName,noteName,newText)) {
+                    Log.i("SaveNote", "Note '$noteName' saved successfully.")
+                } else {
+                    Log.e("SaveNote", "Failed to save the note.")
+                }
+            },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 2.dp, horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
-        ) {
-
-        }
-        MarkdownText(
-            markdown = noteBody,
-            style = TextStyle(Color.White),
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(10.dp)
+                .fillMaxSize()
         )
     }
-
 }

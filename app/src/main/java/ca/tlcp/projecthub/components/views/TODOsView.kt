@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,59 +25,66 @@ import androidx.navigation.NavController
 import ca.tlcp.projecthub.components.Screen
 import ca.tlcp.projecthub.components.ViewComponents.Item
 import ca.tlcp.projecthub.components.ViewComponents.NewItemBar
-import ca.tlcp.projecthub.components.createNote
-import ca.tlcp.projecthub.components.deleteNote
-import ca.tlcp.projecthub.components.loadProjectNotesList
+import ca.tlcp.projecthub.components.createTODO
+import ca.tlcp.projecthub.components.deleteTODO
+import ca.tlcp.projecthub.components.loadProjectTODOsList
 import ca.tlcp.projecthub.components.renameNote
-import ca.tlcp.projecthub.components.renameProject
+
 
 @Composable
-fun NotesView(projectName: String, navController: NavController) {
-    var name by remember { mutableStateOf("") }
-    val notesList = remember {
+fun TODOsView(
+    projectName: String,
+    navController: NavController
+) {
+    val todosList = remember {
         mutableStateListOf<String>()
     }
 
+    var newTODOName by remember {
+        mutableStateOf("")
+    }
+
     var isRenaming by remember { mutableStateOf(false) }
-    var currentNoteName by remember { mutableStateOf("") }
+    var currentTODOName by remember { mutableStateOf("") }
 
     LaunchedEffect(projectName) {
-        notesList.clear()
-        notesList.addAll(loadProjectNotesList(projectName))
+        todosList.clear()
+        todosList.addAll(loadProjectTODOsList(projectName))
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .padding(top = 30.dp, start = 16.dp, end = 16.dp)
+            .padding(16.dp)
     ) {
         Text(
-            text = "Notes",
+            text = "TODOs",
             style = TextStyle(Color.White, fontSize = 24.sp),
             modifier = Modifier.padding(vertical = 16.dp)
         )
-        if (notesList.isNotEmpty()) {
+        if (todosList.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight(0.8f)
+                    .fillMaxWidth()
             ) {
-                items(notesList) { note ->
+                items(todosList) { list ->
                     Item(
-                        title = note,
+                        title = list,
                         onDelete = {
-                            deleteNote(projectName, note    )
-                            notesList.clear()
-                            notesList.addAll(loadProjectNotesList(projectName))
+                            deleteTODO(projectName, list)
+                            todosList.clear()
+                            todosList.addAll(loadProjectTODOsList(projectName))
                         },
                         onSelect = {
                             navController.navigate(
-                                Screen.noteDatialsScreen.route + "/$projectName/$note"
+                                Screen.todoDetailsScreen.route + "/$projectName/$list"
                             )
+
                         },
                         onRename = {
-                            currentNoteName = note
+                            currentTODOName = list
                             isRenaming = true
                         }
                     )
@@ -84,20 +92,20 @@ fun NotesView(projectName: String, navController: NavController) {
             }
             if (isRenaming) {
                 RenameDialog(
-                    initialText = currentNoteName,
+                    initialText = currentTODOName,
                     title = "Rename Project",
                     onConfirm = { newName ->
-                        renameNote(projectName, currentNoteName, newName)
+                        renameNote(projectName, currentTODOName, newName)
                         isRenaming = false
-                        currentNoteName = ""
-                        notesList.apply {
+                        currentTODOName = ""
+                        todosList.apply {
                             clear()
-                            addAll(loadProjectNotesList(projectName))
+                            addAll(loadProjectTODOsList(projectName))
                         }
                     },
                     onDismiss = {
                         isRenaming = false
-                        currentNoteName = ""
+                        currentTODOName = ""
                     }
                 )
             }
@@ -110,16 +118,20 @@ fun NotesView(projectName: String, navController: NavController) {
             }
         }
         NewItemBar(
-            label = "Note Name",
-            inputValue = name,
+            label = "TODO Name",
+            inputValue = newTODOName,
             onInputValueChange = { newValue ->
-                name = newValue
-        }, onCreateItem = {
-            val success = createNote(projectName, name)
-            if (success) {
-                navController.navigate(Screen.noteEditorScreen.route + "/$projectName/$name")
-                name = ""
-            }
-        })
+                newTODOName = newValue
+            }, onCreateItem = {
+                val success = createTODO(projectName, newTODOName)
+                if (success) {
+//                    navController.navigate(Screen.noteEditorScreen.route + "/$projectName/$newTODOName")
+                    todosList.apply {
+                        clear()
+                        addAll(loadProjectTODOsList(projectName))
+                    }
+                    newTODOName = "" // in case of crash
+                }
+            })
     }
 }
