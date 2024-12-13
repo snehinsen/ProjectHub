@@ -33,6 +33,8 @@ fun initFolderStructure() {
     }
 }
 
+// first time use check
+
 // Path verification
 private fun validateProjectPath(projectName: String): File? {
     val projectDir = File(root, "projects/$projectName")
@@ -59,12 +61,12 @@ fun createProject(projectName: String): Boolean {
 
     return try {
         val notesDir = File(projectDir, "notes")
-        val todosDir = File(projectDir, "TODOs")
-        if (projectDir.mkdirs() && notesDir.mkdirs() && todosDir.mkdirs()) {
+        val todoFile = File(projectDir, "todo.txt")
+        if (projectDir.mkdirs() && notesDir.mkdirs() && todoFile.createNewFile()) {
             Log.i("CreateProject", "Project '$projectName' created successfully.")
             true
         } else {
-            Log.e("CreateProject", "Failed to create one or more directories for project '$projectName'.")
+            Log.e("CreateProject", "Failed to create one or more components for project '$projectName'.")
             false
         }
     } catch (e: Exception) {
@@ -101,7 +103,6 @@ fun renameProject(projectName: String, newName: String): Boolean {
         false
     }
 }
-
 
 fun getProjects(): List<String> {
     if (root == null) {
@@ -268,130 +269,46 @@ fun deleteNote(projectName: String, noteName: String): Boolean {
 
 // TODOs FUNCTIONS
 
-fun createTODO(projectName: String, todoName: String): Boolean {
+fun saveTODO(projectName: String, itemsAsString: String): Boolean {
     val projectDir = validateProjectPath(projectName) ?: return false
-    val todoFolder = File(projectDir, "todos")
-
-    if (!todoFolder.exists() || !todoFolder.isDirectory) {
-        Log.e("CreateTODO", "TODOs folder for project '$projectName' does not exist.")
-        todoFolder.mkdirs()
-    }
-
-    val todoFile = File(todoFolder, "${todoName}.txt")
-    return if (todoFile.exists()) {
-        Log.w("CreateTODO", "TODO '$todoName' already exists in project '$projectName'.")
-        false
-    } else {
-        try {
-            if (todoFile.createNewFile()) {
-                Log.i("CreateTODO", "Todo '$todoName' created successfully in project '$projectName'.")
-                true
-            } else {
-                Log.e("CreateTODO", "Failed to create TODO '$todoName' in project '$projectName'.")
-                false
-            }
-        } catch (e: Exception) {
-            Log.e("CreateTODO", "Error creating note '$todoName': ${e.message}")
-            false
-        }
-    }
-}
-
-fun renameTODO(projectName: String, todoName: String, newTodoName: String): Boolean {
-    val projectDir = validateProjectPath(projectName) ?: return false
-    val todoFolder = File(projectDir, "todos")
-
-    if (!todoFolder.exists() || !todoFolder.isDirectory) {
-        Log.e("RenameTUDO", "TODOs folder for project '$projectName' does not exist.")
-        return false
-    }
-
-    val todoFile = File(todoFolder, "${todoName}.md")
-    val newTodoFile = File(todoFolder, "${newTodoName}.txt")
-    return if (todoFile.renameTo(newTodoFile)) {
-        Log.w("RenameTODO", "TODO '$todoName' renamed to $newTodoName successfully.")
-        true
-    } else {
-        false
-    }
-}
-
-fun saveTODO(projectName: String, todoName: String, itemsAsString: String): Boolean {
-    val projectDir = validateProjectPath(projectName) ?: return false
-    val todoFile = File(projectDir, "todos/$todoName.txt")
+    val todoFile = File(projectDir, "todos.txt")
 
     return try {
-        val todosDir = File(projectDir, "todos")
-        if (!todosDir.exists()) {
-            todosDir.mkdirs()
+        if (!todoFile.exists()) {
+            todoFile.createNewFile()
         }
-
         val outputStream = FileOutputStream(todoFile)
         val writer = OutputStreamWriter(outputStream)
         writer.write(itemsAsString)
         writer.close()
         outputStream.close()
 
-        Log.i("SaveTODO", "TODO '$todoName' saved successfully in project '$projectName'.")
+        Log.i("SaveTODO", "TODO saved successfully in project '$projectName'.")
         true
     } catch (e: Exception) {
-        Log.e("SaveTODO", "Error saving TODO '$todoName' in project '$projectName': ${e.message}")
+        Log.e("SaveTODO", "Error saving TODO in project '$projectName': ${e.message}")
         false
     }
 }
 
-fun loadProjectTODOsList(projectName: String): List<String> {
+fun loadProjectTODOList(projectName: String): List<String> {
     val projectDir = validateProjectPath(projectName) ?: return emptyList()
-    val todoFolder = File(projectDir, "todos")
-    if (!todoFolder.exists() || !todoFolder.isDirectory) {
+    val todoFile = File(projectDir, "todos.txt")
+    if (!todoFile.exists() || !todoFile.isFile) {
         Log.e("LoadTODOsList", "TODOs folder for project '$projectName' does not exist.")
         return emptyList()
     }
 
-    return todoFolder.listFiles()
-        ?.filter { it.isFile && it.name.endsWith(".txt") }
-        ?.map { it.nameWithoutExtension }
-        ?: emptyList()
+    val inputStream = FileInputStream(todoFile)
+    val reader = InputStreamReader(inputStream)
+    val tasks = reader.readLines()
+    reader.close()
+    inputStream.close()
+
+    return tasks
 }
 
-fun loadTODO(projectName: String, listName: String): String? {
-    val projectDir = validateProjectPath(projectName) ?: return null
-    val todoFile = File(projectDir, "todos/$listName.txt")
 
-    return if (todoFile.exists()) {
-        try {
-            val inputStream = FileInputStream(todoFile)
-            val reader = InputStreamReader(inputStream)
-            var content = reader.readText()
-            reader.close()
-            inputStream.close()
-            content
-        } catch (e: Exception) {
-            Log.e("LoadProjectNote", "Error reading note '$listName' from project '$projectName': ${e.message}")
-            ""
-        }
-    } else {
-        Log.e("LoadTODO", "TODO '$listName' does not exist in project '$projectName'.")
-        ""
-    }
-}
-
-fun deleteTODO(projectName: String, todoName: String): Boolean {
-    val projectDir = validateProjectPath(projectName) ?: return false
-    val noteFile = File(projectDir, "todos/${todoName}.txt")
-    return if (noteFile.exists() && noteFile.isFile) {
-        if (noteFile.deleteRecursively()) {
-            Log.i("DeleteTODO", "TODO '$todoName' deleted successfully from project '$projectName'.")
-            true
-        } else {
-            Log.e("DeleteTODO", "Failed to delete TODO '$todoName' from project '$projectName'.")
-            false
-        }
-    } else {
-        Log.w("DeleteTODO", "TODO '$todoName' does not exist in project '$projectName'.")
-        false
-    }
-}
 
 
 // DEBUGGING FUNCTIONS

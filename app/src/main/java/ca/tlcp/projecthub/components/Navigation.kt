@@ -11,7 +11,6 @@ import ca.tlcp.projecthub.components.views.EditNoteView
 import ca.tlcp.projecthub.components.views.NoteDetailsView
 import ca.tlcp.projecthub.components.views.ProjectDetailsView
 import ca.tlcp.projecthub.components.views.ProjectsViewPage
-import ca.tlcp.projecthub.components.views.TODODetailsView
 
 @Composable
 fun Navigator() {
@@ -27,15 +26,23 @@ fun Navigator() {
             ProjectsViewPage(navController)
         }
         composable(
-            route = Screen.projectDetailsScreen.route + "{projectName}",
+            route = Screen.projectDetailsScreen.route + "{projectName}/?tab={tab}",
             arguments = listOf<NamedNavArgument>(
                 navArgument("projectName") {
                     type = NavType.StringType
+                },
+                navArgument("tab") {
+                    type = NavType.IntType
+                    defaultValue = 0
                 }
             )
         ) { entry ->
-            val projectName = entry.arguments?.getString("projectName")
-            ProjectDetailsView(navController, projectName)
+            val args = entry.arguments
+            ProjectDetailsView(
+                navController,
+                args?.getString("projectName"),
+                args?.getInt("tab")?.toInt() ?: 0
+            )
         }
         composable(
             route = "${Screen.noteDatialsScreen.route}/{projectName}/{noteName}",
@@ -58,7 +65,7 @@ fun Navigator() {
         }
 
         composable(
-            route = "${Screen.noteEditorScreen.route}/{projectName}/{noteName}",
+            route = "${Screen.noteEditorScreen.route}/{projectName}/{noteName}/{needsRename}",
             arguments = listOf(
                 navArgument("noteName") {
                     type = NavType.StringType
@@ -67,6 +74,11 @@ fun Navigator() {
                 navArgument("projectName") {
                     type = NavType.StringType
                     nullable = false
+                },
+                navArgument("needsRename") {
+                    type = NavType.BoolType
+                    nullable = false
+                    defaultValue = false
                 }
             )
         ) { entry ->
@@ -74,28 +86,8 @@ fun Navigator() {
             EditNoteView(
                 projectName = args?.getString("projectName") ?: "",
                 noteName = args?.getString("noteName") ?: "",
+                needsRename = args?.getBoolean("needsRename"),
                 navController = navController)
         }
-
-        composable(
-            route = "${Screen.todoDetailsScreen.route}/{projectName}/{todoName}",
-            arguments = listOf(
-                navArgument("todoName") {
-                    type = NavType.StringType
-                    nullable = true
-                },
-                navArgument("projectName") {
-                    type = NavType.StringType
-                    nullable = false
-                }
-            )
-        ) { entry ->
-            val args = entry.arguments
-            TODODetailsView(
-                projectName = args?.getString("projectName") ?: "",
-                listName = args?.getString("todoName") ?: "",
-                navController = navController)
-        }
-
     }
 }

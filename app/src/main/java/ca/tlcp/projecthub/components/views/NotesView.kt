@@ -23,12 +23,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ca.tlcp.projecthub.components.Screen
 import ca.tlcp.projecthub.components.ViewComponents.Item
-import ca.tlcp.projecthub.components.ViewComponents.NewItemBar
+import ca.tlcp.projecthub.components.ViewComponents.NewItemCreator
 import ca.tlcp.projecthub.components.createNote
 import ca.tlcp.projecthub.components.deleteNote
 import ca.tlcp.projecthub.components.loadProjectNotesList
 import ca.tlcp.projecthub.components.renameNote
-import ca.tlcp.projecthub.components.renameProject
+import ca.tlcp.projecthub.ui.Colouring
 
 @Composable
 fun NotesView(projectName: String, navController: NavController) {
@@ -39,7 +39,7 @@ fun NotesView(projectName: String, navController: NavController) {
 
     var isRenaming by remember { mutableStateOf(false) }
     var currentNoteName by remember { mutableStateOf("") }
-
+    var requiresRename = false
     LaunchedEffect(projectName) {
         notesList.clear()
         notesList.addAll(loadProjectNotesList(projectName))
@@ -48,7 +48,7 @@ fun NotesView(projectName: String, navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(Colouring.backgroundColour)
             .padding(top = 30.dp, start = 16.dp, end = 16.dp)
     ) {
         Text(
@@ -109,17 +109,21 @@ fun NotesView(projectName: String, navController: NavController) {
                 )
             }
         }
-        NewItemBar(
+        NewItemCreator(
             label = "Note Name",
             inputValue = name,
             onInputValueChange = { newValue ->
                 name = newValue
         }, onCreateItem = {
-            val success = createNote(projectName, name)
-            if (success) {
-                navController.navigate(Screen.noteEditorScreen.route + "/$projectName/$name")
-                name = ""
-            }
-        })
+
+        }, useDialog = false,
+            onCreateItemNoDialog = {
+                name = "Untitled Note"
+                val success = createNote(projectName, name)
+                if (success) {
+                    navController.navigate(Screen.noteEditorScreen.route + "/$projectName/$name/true")
+                }
+            },
+        )
     }
 }

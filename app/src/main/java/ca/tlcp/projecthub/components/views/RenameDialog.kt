@@ -40,6 +40,7 @@ fun RenameDialog(
                     onValueChange = { newValue -> textState = newValue },
                     modifier = Modifier.fillMaxWidth(),
                     textStyle = TextStyle(color = Color.White),
+                    singleLine = true,
                     label = { Text("Enter a new name", color = Color.White) }
                 )
                 Row(
@@ -51,7 +52,7 @@ fun RenameDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(onClick = { onConfirm(textState) }) {
-                        Text("Confirm", color = Color.White)
+                        Text("Rename", color = Color.White)
                     }
                 }
             }

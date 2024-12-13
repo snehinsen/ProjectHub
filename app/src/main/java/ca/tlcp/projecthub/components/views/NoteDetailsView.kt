@@ -14,11 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ca.tlcp.projecthub.components.Screen
 import ca.tlcp.projecthub.components.loadNote
+import ca.tlcp.projecthub.ui.Colouring
+import ca.tlcp.projecthub.ui.formatTitle
 import com.colintheshots.twain.MarkdownText
 
 @Composable
@@ -32,7 +35,7 @@ fun NoteDetailsView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(Colouring.notesColour)
             .padding(top = 40.dp)
     ) {
         Row(
@@ -64,7 +67,9 @@ fun NoteDetailsView(
                     color = Color.White,
                     fontSize = 18.sp
                 ),
+                overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center,
+                maxLines = 1,
                 modifier = Modifier.weight(2f)
             )
 
@@ -72,7 +77,7 @@ fun NoteDetailsView(
 
             TextButton(
                 onClick = {
-                    navController.navigate(Screen.noteEditorScreen.route + "/$projectName/$noteName")
+                    navController.navigate(Screen.noteEditorScreen.route + "/$projectName/$noteName/false")
                 },
                 modifier = Modifier.wrapContentSize()
             ) {
@@ -85,16 +90,6 @@ fun NoteDetailsView(
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("Edit", color = Color.White, fontSize = 14.sp)
             }
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 2.dp, horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End
-        ) {
-
         }
         MarkdownText(
             markdown = noteBody,

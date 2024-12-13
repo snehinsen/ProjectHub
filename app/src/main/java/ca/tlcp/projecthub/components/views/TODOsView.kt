@@ -22,13 +22,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import ca.tlcp.projecthub.components.Screen
 import ca.tlcp.projecthub.components.ViewComponents.Item
-import ca.tlcp.projecthub.components.ViewComponents.NewItemBar
-import ca.tlcp.projecthub.components.createTODO
-import ca.tlcp.projecthub.components.deleteTODO
-import ca.tlcp.projecthub.components.loadProjectTODOsList
-import ca.tlcp.projecthub.components.renameNote
+import ca.tlcp.projecthub.components.ViewComponents.NewItemCreator
+import ca.tlcp.projecthub.components.loadProjectTODOList
+import ca.tlcp.projecthub.components.saveTODO
+import ca.tlcp.projecthub.ui.Colouring
 
 
 @Composable
@@ -36,11 +34,11 @@ fun TODOsView(
     projectName: String,
     navController: NavController
 ) {
-    val todosList = remember {
+    val todoList = remember {
         mutableStateListOf<String>()
     }
 
-    var newTODOName by remember {
+    var task by remember {
         mutableStateOf("")
     }
 
@@ -48,14 +46,14 @@ fun TODOsView(
     var currentTODOName by remember { mutableStateOf("") }
 
     LaunchedEffect(projectName) {
-        todosList.clear()
-        todosList.addAll(loadProjectTODOsList(projectName))
+        todoList.clear()
+        todoList.addAll(loadProjectTODOList(projectName))
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(Colouring.backgroundColour)
             .padding(16.dp)
     ) {
         Text(
@@ -63,28 +61,26 @@ fun TODOsView(
             style = TextStyle(Color.White, fontSize = 24.sp),
             modifier = Modifier.padding(vertical = 16.dp)
         )
-        if (todosList.isNotEmpty()) {
+        if (todoList.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
             ) {
-                items(todosList) { list ->
+                items(todoList) { task ->
                     Item(
-                        title = list,
+                        title = task,
                         onDelete = {
-                            deleteTODO(projectName, list)
-                            todosList.clear()
-                            todosList.addAll(loadProjectTODOsList(projectName))
+                            todoList.remove(task)
+                            saveTODO(projectName, todosStringify(todoList))
+                            todoList.clear()
+                            todoList.addAll(loadProjectTODOList(projectName))
                         },
                         onSelect = {
-                            navController.navigate(
-                                Screen.todoDetailsScreen.route + "/$projectName/$list"
-                            )
 
                         },
                         onRename = {
-                            currentTODOName = list
+                            currentTODOName = task
                             isRenaming = true
                         }
                     )
@@ -95,13 +91,15 @@ fun TODOsView(
                     initialText = currentTODOName,
                     title = "Rename Project",
                     onConfirm = { newName ->
-                        renameNote(projectName, currentTODOName, newName)
                         isRenaming = false
-                        currentTODOName = ""
-                        todosList.apply {
+                        todoList.apply {
+                            remove(currentTODOName)
+                            add(newName)
+                            saveTODO(projectName, todosStringify(todoList))
                             clear()
-                            addAll(loadProjectTODOsList(projectName))
+                            addAll(loadProjectTODOList(projectName))
                         }
+                        currentTODOName = ""
                     },
                     onDismiss = {
                         isRenaming = false
@@ -117,21 +115,31 @@ fun TODOsView(
                 )
             }
         }
-        NewItemBar(
-            label = "TODO Name",
-            inputValue = newTODOName,
+        NewItemCreator(
+            label = "Task Name",
+            inputValue = task,
+            title = "What do you need TODO?",
             onInputValueChange = { newValue ->
-                newTODOName = newValue
+                task = newValue
             }, onCreateItem = {
-                val success = createTODO(projectName, newTODOName)
+                todoList.add(task)
+                val success = saveTODO(projectName, todosStringify(todoList))
                 if (success) {
-//                    navController.navigate(Screen.noteEditorScreen.route + "/$projectName/$newTODOName")
-                    todosList.apply {
+                    todoList.apply {
                         clear()
-                        addAll(loadProjectTODOsList(projectName))
+                        addAll(loadProjectTODOList(projectName))
                     }
-                    newTODOName = "" // in case of crash
+                    task = "" // in case of crash
                 }
-            })
+            }, useDialog = true,
+            onCreateItemNoDialog = {})
     }
+}
+
+private fun todosStringify(tasks: List<String>): String {
+    var todosString = ""
+    for (task in tasks) {
+        todosString += "$task\n"
+    }
+    return todosString
 }
