@@ -33,7 +33,6 @@ fun initFolderStructure() {
     }
 }
 
-// first time use check
 
 // Path verification
 private fun validateProjectPath(projectName: String): File? {
@@ -295,7 +294,7 @@ fun loadProjectTODOList(projectName: String): List<String> {
     val projectDir = validateProjectPath(projectName) ?: return emptyList()
     val todoFile = File(projectDir, "todos.txt")
     if (!todoFile.exists() || !todoFile.isFile) {
-        Log.e("LoadTODOsList", "TODOs folder for project '$projectName' does not exist.")
+        todoFile.createNewFile()
         return emptyList()
     }
 

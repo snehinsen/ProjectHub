@@ -1,6 +1,7 @@
 package ca.tlcp.projecthub.components.views
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -43,7 +44,11 @@ fun ProjectsViewPage(navController: NavController) {
 
     val prefs = Static.getSharedPreferences()
 
+    // first time use vars
     val isFirstRun = prefs?.getBoolean("first_run", true)
+    val defaultNoteName = "Untitled Note"
+    val defaultProjectName = "Untitled Project"
+
 
     LaunchedEffect(Unit) {
         projects.clear()
@@ -109,7 +114,7 @@ fun ProjectsViewPage(navController: NavController) {
                                     .navigate(
                                         Screen
                                             .projectDetailsScreen
-                                            .route + project)
+                                            .route + "/$project/0")
                             },
                             onRename = {
                                 currentProjectName = project
@@ -190,7 +195,11 @@ fun ProjectsViewPage(navController: NavController) {
                         if (createProject(projectName)) {
                             projects.add(projectName)
                             projectListBackup.add(projectName)
-                            navController.navigate(Screen.projectDetailsScreen.route + projectName)
+                            navController
+                                .navigate(
+                                    Screen
+                                        .projectDetailsScreen
+                                            .route + "/$projectName/0")
                             projectName = ""
                         }
                     }
@@ -217,8 +226,6 @@ fun ProjectsViewPage(navController: NavController) {
             }
         } else {
             // First time use experience
-            val defaultNoteName = "Untitled Note"
-            val defaultProjectName = "Untitled Project"
             Column(
                 modifier =
                     Modifier
@@ -243,6 +250,13 @@ fun ProjectsViewPage(navController: NavController) {
                                         .route
                                             + "/$defaultProjectName/$defaultNoteName/true"
                                 )
+                                prefs?.edit()?.putBoolean("first_run", false)?.apply()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Error creating default note",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                         }
                     },
@@ -274,9 +288,7 @@ fun ProjectsViewPage(navController: NavController) {
                 )
                 TextButton(
                     onClick = {
-                        if (createProject(defaultProjectName)) {
-                            creatingTask = true
-                        }
+                        creatingTask = true
                     },
                     modifier =
                         Modifier
@@ -301,72 +313,70 @@ fun ProjectsViewPage(navController: NavController) {
                     )
                 }
             }
-
-            if (creatingTask == true) {
-                Dialog(onDismissRequest = { creatingTask = false }) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.DarkGray, MaterialTheme.shapes.medium)
-                            .padding(16.dp)
+        }
+        if (creatingTask == true && !projects.isNotEmpty()) {
+            Dialog(onDismissRequest = { creatingTask = false }) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.DarkGray, MaterialTheme.shapes.medium)
+                        .padding(16.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Column(
+                        Text(
+                            text = "What do you want TODO?",
+                            style = TextStyle(
+                                color = Color.White,
+                                fontSize = MaterialTheme
+                                    .typography
+                                    .titleLarge
+                                    .fontSize
+                            )
+                        )
+                        OutlinedTextField(
+                            value = todoName,
+                            onValueChange = { newValue -> todoName = newValue },
                             modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                            textStyle = TextStyle(color = Color.White),
+                            singleLine = true,
+                            label = { Text("Task", color = Color.White) }
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
                         ) {
-                            Text(
-                                text = "What do you want TODO?",
-                                style = TextStyle(
-                                    color = Color.White,
-                                    fontSize = MaterialTheme
-                                        .typography
-                                        .titleLarge
-                                        .fontSize
-                                )
-                            )
-                            OutlinedTextField(
-                                value = todoName,
-                                onValueChange = { newValue -> todoName = newValue },
-                                modifier = Modifier.fillMaxWidth(),
-                                textStyle = TextStyle(color = Color.White),
-                                singleLine = true,
-                                label = { Text("Task", color = Color.White) }
-                            )
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
-                            ) {
-                                TextButton(
-                                    onClick = {
-                                        todoName = ""
-                                        creatingTask = false
-                                    }
-                                ) {
-                                    Text("Cancel", color = Color.White)
+                            TextButton(
+                                onClick = {
+                                    todoName = ""
+                                    creatingTask = false
                                 }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Button(
-                                    onClick = {
-                                        if (
-                                            saveTODO(
-                                                defaultProjectName,
-                                                todoName
-                                            )
-                                        ) {
-                                            prefs?.edit()?.putBoolean("first_run", false)?.apply()
-                                            creatingTask = false
-                                            todoName = ""
-                                        }
+                            ) {
+                                Text("Cancel", color = Color.White)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(
+                                onClick = {
+                                    if (createProject(defaultProjectName)) {
+                                        saveTODO(
+                                            defaultProjectName,
+                                            todoName
+                                        )
+                                        creatingTask = false
+                                        todoName = ""
+                                        prefs?.edit()?.putBoolean("first_run", false)?.apply()
                                         navController
                                             .navigate(
                                                 Screen
                                                     .projectDetailsScreen
-                                                    .route + "$defaultProjectName/1"
+                                                    .route + "/$defaultProjectName/1"
                                             )
                                     }
-                                ) {
-                                    Text("Add task", color = Color.White)
                                 }
+                            ) {
+                                Text("Add task", color = Color.White)
                             }
                         }
                     }

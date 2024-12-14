@@ -46,7 +46,12 @@ fun NoteDetailsView(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(
-                onClick = { navController.navigate(Screen.projectDetailsScreen.route + projectName) },
+                onClick = {
+                    navController
+                        .navigate(
+                            Screen
+                                .projectDetailsScreen
+                                    .route + "/$projectName/0") },
                 modifier = Modifier.wrapContentSize()
             ) {
                 Icon(

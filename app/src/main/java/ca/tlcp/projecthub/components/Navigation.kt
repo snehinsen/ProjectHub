@@ -26,7 +26,7 @@ fun Navigator() {
             ProjectsViewPage(navController)
         }
         composable(
-            route = Screen.projectDetailsScreen.route + "{projectName}/?tab={tab}",
+            route = Screen.projectDetailsScreen.route + "/{projectName}/{tab}",
             arguments = listOf<NamedNavArgument>(
                 navArgument("projectName") {
                     type = NavType.StringType
