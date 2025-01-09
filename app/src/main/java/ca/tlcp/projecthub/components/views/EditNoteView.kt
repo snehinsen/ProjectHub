@@ -8,6 +8,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -16,12 +19,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ca.tlcp.projecthub.components.Screen
+import ca.tlcp.projecthub.components.Static
 import ca.tlcp.projecthub.components.deleteNote
+import ca.tlcp.projecthub.components.deleteProject
 import ca.tlcp.projecthub.components.loadNote
 import ca.tlcp.projecthub.components.renameNote
 import ca.tlcp.projecthub.components.saveNote
 import ca.tlcp.projecthub.ui.Colouring
-import ca.tlcp.projecthub.ui.formatTitle
 import com.colintheshots.twain.MarkdownEditor
 
 @Composable
@@ -33,6 +37,14 @@ fun EditNoteView(
 ) {
     var noteBody by remember { mutableStateOf(loadNote(projectName,noteName)) }
     var isRenaming by remember { mutableStateOf(false) }
+    val focus = remember {
+        FocusRequester()
+    }
+
+    LaunchedEffect(Unit) {
+        focus.requestFocus()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -91,11 +103,15 @@ fun EditNoteView(
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .background(Colouring.notesColour)
+                .focusRequester(focus)
         )
     }
     if (isRenaming) {
-        RenameDialog(
-            noteName, title = "Note Name",
+        UpdateNameDialog(
+            noteName,
+            title = "Note Name",
+            onConfermLabel = "Save",
+            onAbortLabel = "Discard",
             onConfirm = { newName ->
                 if (newName != noteName) {
                     val success = renameNote(projectName, noteName, newName)
@@ -106,7 +122,24 @@ fun EditNoteView(
                     }
                 }
             },
-            onDismiss = {isRenaming = false}
+            onDismiss = {
+                isRenaming = false
+            },
+            onAbort = {
+                isRenaming = false
+                Static
+                    .getSharedPreferences()
+                    ?.edit()
+                    ?.putBoolean("first_run", true)
+                    ?.apply()
+                deleteProject("Untitled Project")
+                navController
+                    .navigate(
+                        Screen
+                            .projectsScreen
+                            .route
+                    )
+            }
         )
     }
 }

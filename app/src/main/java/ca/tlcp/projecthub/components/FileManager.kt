@@ -115,7 +115,7 @@ fun getProjects(): List<String> {
         return emptyList()
     }
 
-    Log.i("", projectsFolder.listFiles().toString())
+    Log.i("", projectsFolder?.listFiles().toString())
 
     return projectsFolder.listFiles()
         ?.filter { it.isDirectory && File(it, "notes").exists() && File(it, "notes").isDirectory }

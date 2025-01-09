@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -21,29 +22,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import ca.tlcp.projecthub.components.ViewComponents.Item
 import ca.tlcp.projecthub.components.ViewComponents.NewItemCreator
+import ca.tlcp.projecthub.components.ViewComponents.Task
 import ca.tlcp.projecthub.components.loadProjectTODOList
 import ca.tlcp.projecthub.components.saveTODO
 import ca.tlcp.projecthub.ui.Colouring
-
+import java.util.Timer
+import kotlin.concurrent.timerTask
 
 @Composable
 fun TODOsView(
     projectName: String,
-    navController: NavController
 ) {
-    val todoList = remember {
-        mutableStateListOf<String>()
-    }
-
-    var task by remember {
-        mutableStateOf("")
-    }
-
+    val todoList = remember { mutableStateListOf<String>() }
+    var task by remember { mutableStateOf("") }
     var isRenaming by remember { mutableStateOf(false) }
     var currentTODOName by remember { mutableStateOf("") }
+    val timers = remember { mutableStateMapOf<String, Timer>() }
+
+    fun deleteTODO(todo: String) {
+        todoList.remove(todo)
+        saveTODO(projectName, todosStringify(todoList))
+        todoList.clear()
+        todoList.addAll(loadProjectTODOList(projectName))
+    }
 
     LaunchedEffect(projectName) {
         todoList.clear()
@@ -54,40 +56,54 @@ fun TODOsView(
         modifier = Modifier
             .fillMaxSize()
             .background(Colouring.backgroundColour)
-            .padding(16.dp)
+            .padding(
+                top = 2.dp,
+                start = 10.dp,
+                end = 10.dp,
+                bottom = 0.dp
+            )
     ) {
         Text(
             text = "TODOs",
             style = TextStyle(Color.White, fontSize = 24.sp),
             modifier = Modifier.padding(vertical = 16.dp)
         )
+
         if (todoList.isNotEmpty()) {
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
             ) {
-                items(todoList) { task ->
-                    Item(
-                        title = task,
-                        onDelete = {
-                            todoList.remove(task)
-                            saveTODO(projectName, todosStringify(todoList))
-                            todoList.clear()
-                            todoList.addAll(loadProjectTODOList(projectName))
-                        },
-                        onSelect = {
-
+                items(todoList) { taskItem ->
+                    Task(
+                        title = taskItem,
+                        onCheck = { checked ->
+                            if (checked) {
+                                val timer = Timer()
+                                timers[taskItem] = timer
+                                timer.schedule(
+                                    timerTask {
+                                        deleteTODO(taskItem)
+                                        timers.remove(taskItem)
+                                    },
+                                    2000L
+                                )
+                            } else {
+                                timers[taskItem]?.cancel()
+                                timers.remove(taskItem)
+                            }
                         },
                         onRename = {
-                            currentTODOName = task
+                            currentTODOName = taskItem
                             isRenaming = true
                         }
                     )
                 }
             }
+
             if (isRenaming) {
-                RenameDialog(
+                UpdateNameDialog(
                     initialText = currentTODOName,
                     title = "Rename Project",
                     onConfirm = { newName ->
@@ -105,7 +121,9 @@ fun TODOsView(
                         isRenaming = false
                         currentTODOName = ""
                     }
-                )
+                ) {
+                    isRenaming = false
+                }
             }
         } else {
             Column(Modifier.fillMaxHeight(0.8f)) {
@@ -115,13 +133,13 @@ fun TODOsView(
                 )
             }
         }
+
         NewItemCreator(
             label = "Task Name",
             inputValue = task,
             title = "What do you need TODO?",
-            onInputValueChange = { newValue ->
-                task = newValue
-            }, onCreateItem = {
+            onInputValueChange = { newValue -> task = newValue },
+            onCreateItem = {
                 todoList.add(task)
                 val success = saveTODO(projectName, todosStringify(todoList))
                 if (success) {
@@ -129,17 +147,15 @@ fun TODOsView(
                         clear()
                         addAll(loadProjectTODOList(projectName))
                     }
-                    task = "" // in case of crash
+                    task = ""
                 }
-            }, useDialog = true,
-            onCreateItemNoDialog = {})
+            },
+            useDialog = true,
+            onCreateItemNoDialog = {}
+        )
     }
 }
 
 private fun todosStringify(tasks: List<String>): String {
-    var todosString = ""
-    for (task in tasks) {
-        todosString += "$task\n"
-    }
-    return todosString
+    return tasks.joinToString("\n")
 }

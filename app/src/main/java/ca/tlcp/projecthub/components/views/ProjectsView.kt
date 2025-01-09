@@ -208,7 +208,7 @@ fun ProjectsViewPage(navController: NavController) {
             )
 
             if (isRenaming) {
-                RenameDialog(
+                UpdateNameDialog(
                     initialText = currentProjectName,
                     title = "Rename Project",
                     onConfirm = { newName ->
@@ -222,7 +222,9 @@ fun ProjectsViewPage(navController: NavController) {
                         isRenaming = false
                         currentProjectName = ""
                     }
-                )
+                ) {
+                    isRenaming = false
+                }
             }
         } else {
             // First time use experience

@@ -92,8 +92,6 @@ fun NoteDetailsView(
                     tint = Color.White,
                     modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Edit", color = Color.White, fontSize = 14.sp)
             }
         }
         MarkdownText(

@@ -1,131 +1,180 @@
 package ca.tlcp.projecthub.components.views
 
+import android.R
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.R
-import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Notes
+import androidx.compose.material.icons.outlined.TaskAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import ca.tlcp.projecthub.components.Screen
+import ca.tlcp.projecthub.components.ViewComponents.NavItem
+import ca.tlcp.projecthub.components.renameProject
 import ca.tlcp.projecthub.ui.Colouring
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ProjectDetailsView(
     navController: NavController,
     project: String?,
     startingTab: Int = 0
 ) {
+
+    val navigationItems = listOf(
+        NavItem("Notes", Icons.Outlined.Notes),
+        NavItem("TODOs", Icons.Outlined.TaskAlt)
+    )
+
     var selectedTabIndex by remember { mutableIntStateOf(startingTab) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Colouring.backgroundColour)
-            .padding(top = 40.dp, start = 5.dp, end = 5.dp)
-    ) {
-        Row {
-            TextButton(onClick = {
-                navController.navigate(Screen.projectsScreen.route)
-            }, modifier = Modifier.height(50.dp)) {
-                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
-                Text("Back")
-            }
-            Spacer(Modifier.weight(1f))
+    val navColouring = NavigationBarItemColors(
+        selectedIconColor = Color.Green,
+        selectedTextColor = Color.Green,
+        selectedIndicatorColor = Colouring.cardColour,
+        unselectedIconColor = Color.White,
+        unselectedTextColor = Color.White,
+        disabledIconColor = Color.DarkGray,
+        disabledTextColor = Color.DarkGray,
+    )
 
-            Text(
-                text = project.toString(),
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-                style = TextStyle(
-                    Color.White,
-                    20.sp
-                )
-            )
+    var isRenamingProject by remember { mutableStateOf(false) }
 
-            Spacer(Modifier.weight(1f))
-
-            IconButton(
-                onClick = {
-
-                }
+    Scaffold(
+        bottomBar = {
+            NavigationBar(
+                containerColor =
+                    Colouring.backgroundColour,
+                contentColor = Color.White,
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Edit,
-                    contentDescription = "Rename $project",
-                    tint = Color.White
-                )
+                navigationItems
+                    .forEachIndexed { index, item ->
+                        if (item.icon != null) {
+                            NavigationBarItem(
+                                selected = selectedTabIndex == index,
+                                onClick = { selectedTabIndex = index },
+                                label = { Text(item.label) },
+                                colors = navColouring,
+                                icon = {
+                                    Icon(
+                                        imageVector = item.icon,
+                                        contentDescription = item.label,
+                                    )
+                                },
+                                modifier = Modifier,
+                            )
+                        } else {
+                            NavigationBarItem(
+                                selected = selectedTabIndex == index,
+                                onClick = { selectedTabIndex = index },
+                                label = { Text(item.label) },
+                                modifier = Modifier,
+                                icon = { null },
+                                colors = navColouring
+                            )
+                        }
+                    }
             }
-            IconButton(
-                onClick = {
-
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Delete,
-                    contentDescription = "Delete $project",
-                    tint = Color.White
-                )
-            }
-
         }
-        // TODO IMPLEMENT SEARCH THIS TIME AS A POPUP AND BUTTON COMBO
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Colouring.backgroundColour)
+                .padding(top = 40.dp, start = 5.dp, end = 5.dp)
+        ) {
+            Row {
+                TextButton(onClick = {
+                    navController.navigate(Screen.projectsScreen.route)
+                }, modifier = Modifier.height(50.dp)) {
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
+                    Text("Back")
+                }
+                Spacer(Modifier.weight(1f))
+
+                Text(
+                    text = project.toString(),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    style = TextStyle(
+                        Color.White,
+                        20.sp
+                    )
+                )
+
+                Spacer(Modifier.weight(1f))
+
+                IconButton(
+                    onClick = {
+                        isRenamingProject = true
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Edit,
+                        contentDescription = "Rename $project",
+                        tint = Color.White
+                    )
+                }
+            }
+            // TODO IMPLEMENT SEARCH THIS TIME AS A POPUP AND BUTTON COMBO
 
 //        SearchBar() { searchQuery ->
 //
 //        }
-        TabRow(
-            selectedTabIndex = selectedTabIndex,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 5.dp)
-                .background(Colouring.backgroundColour)
-        ) {
-            Tab(
-                selected = selectedTabIndex == 0,
-                onClick = { selectedTabIndex = 0 },
-                text = {
-                    Text(
-                        text = "Notes",
-                        style = TextStyle(
-                            color = Color.White
-                        )
-                    )
-                },
 
-                modifier = Modifier.background(Colouring.backgroundColour),
-            )
-            Tab(
-                selected = selectedTabIndex == 1,
-                onClick = { selectedTabIndex = 1 },
-                text = {
-                    Text(
-                        text = "Todos",
-                        style = TextStyle(
-                            color = Color.White
-                        )
-                    )
-                },
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.87f)
+            ) {
+                when (selectedTabIndex) {
+                    0 -> {
+                        NotesView(project.toString(), navController)
+                    }
 
-                modifier = Modifier.background(Colouring.backgroundColour),
-            )
-        }
-
-        when (selectedTabIndex) {
-            0 -> {
-                NotesView(project.toString(), navController)
+                    1 -> {
+                        TODOsView(project.toString())
+                    }
+                }
             }
-            1 -> {
-                TODOsView(project.toString(), navController)
+            if (isRenamingProject) {
+                UpdateNameDialog(
+                    initialText = project.toString(),
+                    title = "Rename Project",
+                    onConfirm = { newName ->
+                        isRenamingProject = false
+                        renameProject(project.toString(), newName)
+
+                        navController
+                            .navigate(
+                                Screen
+                                    .projectDetailsScreen
+                                    .route
+                                        + "/$newName/$selectedTabIndex"
+
+                            )
+                    },
+                    onDismiss = {
+                        isRenamingProject = false
+                    },
+                    onAbortLabel = "Cancel"
+                ) {
+                    isRenamingProject = false
+                }
             }
         }
     }

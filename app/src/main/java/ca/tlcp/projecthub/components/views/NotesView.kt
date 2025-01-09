@@ -49,7 +49,7 @@ fun NotesView(projectName: String, navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .background(Colouring.backgroundColour)
-            .padding(top = 30.dp, start = 16.dp, end = 16.dp)
+            .padding(top = 2.dp, start = 10.dp, end = 10.dp, bottom = 0.dp)
     ) {
         Text(
             text = "Notes",
@@ -83,7 +83,7 @@ fun NotesView(projectName: String, navController: NavController) {
                 }
             }
             if (isRenaming) {
-                RenameDialog(
+                UpdateNameDialog(
                     initialText = currentNoteName,
                     title = "Rename Project",
                     onConfirm = { newName ->
@@ -99,7 +99,9 @@ fun NotesView(projectName: String, navController: NavController) {
                         isRenaming = false
                         currentNoteName = ""
                     }
-                )
+                ) {
+                    isRenaming = false
+                }
             }
         } else {
             Column(Modifier.fillMaxHeight(0.8f)) {
