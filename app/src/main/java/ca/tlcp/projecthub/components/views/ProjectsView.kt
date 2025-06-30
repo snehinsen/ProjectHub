@@ -63,10 +63,8 @@ fun ProjectsViewPage(navController: NavController) {
             .fillMaxHeight()
             .background(Colouring.backgroundColour)
             .padding(
-                top = 40.dp,
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 2.dp
+                vertical = 5.dp,
+                horizontal = 16.dp
             )
     ) {
         Text(

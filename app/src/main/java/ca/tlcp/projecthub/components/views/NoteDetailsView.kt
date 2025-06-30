@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -36,7 +37,6 @@ fun NoteDetailsView(
         modifier = Modifier
             .fillMaxSize()
             .background(Colouring.notesColour)
-            .padding(top = 40.dp)
     ) {
         Row(
             modifier = Modifier
@@ -82,15 +82,23 @@ fun NoteDetailsView(
 
             TextButton(
                 onClick = {
-                    navController.navigate(Screen.noteEditorScreen.route + "/$projectName/$noteName/false")
+                    navController
+                        .navigate(
+                            Screen
+                                .noteEditorScreen
+                                .route + "/$projectName/$noteName/false"
+                        )
                 },
-                modifier = Modifier.wrapContentSize()
+                modifier = Modifier
+                    .wrapContentSize()
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Edit,
+                    imageVector = Icons.Filled.EditNote,
                     contentDescription = "Edit Note",
                     tint = Color.White,
-                    modifier = Modifier.size(18.dp)
+                    modifier =
+                        Modifier
+                            .size(25.dp)
                 )
             }
         }

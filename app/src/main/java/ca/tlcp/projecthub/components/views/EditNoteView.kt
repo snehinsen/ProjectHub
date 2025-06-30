@@ -49,7 +49,7 @@ fun EditNoteView(
         modifier = Modifier
             .fillMaxSize()
             .background(Colouring.backgroundColour)
-            .padding(top = 40.dp, start = 10.dp, end = 10.dp)
+            .padding(horizontal = 10.dp)
     ) {
         Row(
             modifier = Modifier

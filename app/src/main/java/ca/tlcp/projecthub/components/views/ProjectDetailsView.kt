@@ -8,7 +8,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.outlined.Checklist
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Notes
 import androidx.compose.material.icons.outlined.TaskAlt
 import androidx.compose.material3.*
@@ -36,7 +38,7 @@ fun ProjectDetailsView(
 
     val navigationItems = listOf(
         NavItem("Notes", Icons.Outlined.Notes),
-        NavItem("TODOs", Icons.Outlined.TaskAlt)
+        NavItem("TODOs", Icons.Outlined.Checklist)
     )
 
     var selectedTabIndex by remember { mutableIntStateOf(startingTab) }
@@ -57,35 +59,27 @@ fun ProjectDetailsView(
         bottomBar = {
             NavigationBar(
                 containerColor =
-                    Colouring.backgroundColour,
-                contentColor = Color.White,
+                    Colouring
+                        .backgroundColour,
+                contentColor =
+                    Color
+                        .White,
             ) {
                 navigationItems
                     .forEachIndexed { index, item ->
-                        if (item.icon != null) {
-                            NavigationBarItem(
-                                selected = selectedTabIndex == index,
-                                onClick = { selectedTabIndex = index },
-                                label = { Text(item.label) },
-                                colors = navColouring,
-                                icon = {
-                                    Icon(
-                                        imageVector = item.icon,
-                                        contentDescription = item.label,
-                                    )
-                                },
-                                modifier = Modifier,
-                            )
-                        } else {
-                            NavigationBarItem(
-                                selected = selectedTabIndex == index,
-                                onClick = { selectedTabIndex = index },
-                                label = { Text(item.label) },
-                                modifier = Modifier,
-                                icon = { null },
-                                colors = navColouring
-                            )
-                        }
+                        NavigationBarItem(
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+                            label = { Text(item.label) },
+                            colors = navColouring,
+                            icon = {
+                                Icon(
+                                    imageVector = item.icon,
+                                    contentDescription = item.label,
+                                )
+                            },
+                            modifier = Modifier,
+                        )
                     }
             }
         }
@@ -94,7 +88,7 @@ fun ProjectDetailsView(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Colouring.backgroundColour)
-                .padding(top = 40.dp, start = 5.dp, end = 5.dp)
+                .padding(horizontal = 5.dp)
         ) {
             Row {
                 TextButton(onClick = {
